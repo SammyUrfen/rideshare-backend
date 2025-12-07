@@ -1,0 +1,482 @@
+{
+	"info": {
+		"_postman_id": "32ed36e8-576a-4c26-bd87-46a0a517c70c",
+		"name": "RideShare Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "47563127",
+		"_collection_link": "https://bibekcharah-1183016.postman.co/workspace/a1b6b063-2dc4-4483-893b-6e1a94993722/collection/47563127-32ed36e8-576a-4c26-bd87-46a0a517c70c?action=share&source=collection_link&creator=47563127"
+	},
+	"item": [
+		{
+			"name": "1. Register Passenger (USER)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"passenger_p\",\n    \"password\": \"password123\",\n    \"role\": \"ROLE_USER\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/api/auth/register",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2. Register Driver (DRIVER)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"driver_d\",\n    \"password\": \"password123\",\n    \"role\": \"ROLE_DRIVER\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/api/auth/register",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3. Login Passenger (Get USER_TOKEN)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Check for a successful response status",
+							"pm.test(\"Status code is 200/201\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+							"});",
+							"",
+							"// Parse the response body as JSON",
+							"var jsonData = pm.response.json();",
+							"",
+							"// Check if the 'token' field exists and is not empty",
+							"pm.test(\"Response contains token\", function () {",
+							"    pm.expect(jsonData).to.have.property('token').that.is.a('string').and.is.not.empty;",
+							"});",
+							"",
+							"// Set the USER_TOKEN collection variable for subsequent requests",
+							"if (jsonData && jsonData.token) {",
+							"    pm.collectionVariables.set(\"USER_TOKEN\", jsonData.token);",
+							"    console.log(\"USER_TOKEN set: \" + jsonData.token.substring(0, 50) + \"...\");",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"passenger_p\",\n    \"password\": \"password123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/api/auth/login",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "4. Login Driver (Get DRIVER_TOKEN)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200/201\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"pm.test(\"Response contains token\", function () {",
+							"    pm.expect(jsonData).to.have.property('token').that.is.a('string').and.is.not.empty;",
+							"});",
+							"",
+							"// Set the DRIVER_TOKEN collection variable",
+							"if (jsonData && jsonData.token) {",
+							"    pm.collectionVariables.set(\"DRIVER_TOKEN\", jsonData.token);",
+							"    console.log(\"DRIVER_TOKEN set: \" + jsonData.token.substring(0, 50) + \"...\");",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"driver_d\",\n    \"password\": \"password123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/api/auth/login",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "5. Passenger Requests Ride (Set RIDE_ID)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200/201\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"// Check the initial status and save the ID",
+							"pm.test(\"Ride status is REQUESTED\", function () {",
+							"    pm.expect(jsonData.status).to.eql(\"REQUESTED\");",
+							"});",
+							"",
+							"// Set the RIDE_ID collection variable",
+							"if (jsonData && jsonData.id) {",
+							"    pm.collectionVariables.set(\"RIDE_ID\", jsonData.id);",
+							"    console.log(\"RIDE_ID set: \" + jsonData.id);",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{USER_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"pickupLocation\": \"Koramangala\",\n    \"dropLocation\": \"Indiranagar\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/api/v1/rides",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"rides"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "6. Driver Views Pending Rides",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{DRIVER_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/api/v1/driver/rides/requests",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"driver",
+						"rides",
+						"requests"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "7. Driver Accepts Ride",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.expect(pm.response.code).to.eql(200);",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"// Check the status update",
+							"pm.test(\"Ride status is ACCEPTED\", function () {",
+							"    pm.expect(jsonData.status).to.eql(\"ACCEPTED\");",
+							"});",
+							"pm.test(\"Driver ID is set\", function () {",
+							"    pm.expect(jsonData.driverId).to.not.be.null;",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{DRIVER_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/api/v1/driver/rides/{{RIDE_ID}}/accept",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"driver",
+						"rides",
+						"{{RIDE_ID}}",
+						"accept"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "8. Passenger Completes Ride",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{USER_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/api/v1/rides/{{RIDE_ID}}/complete",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"rides",
+						"{{RIDE_ID}}",
+						"complete"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "9. Passenger Views My Rides",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{USER_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/api/v1/user/rides",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"rides"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "10. Auth Fail: Driver on User endpoint",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Test for the 403 Forbidden status code",
+							"pm.test(\"Status code is 403 Forbidden\", function () {",
+							"    pm.expect(pm.response.code).to.eql(403);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{DRIVER_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/api/v1/user/rides",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"rides"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": ""
+		},
+		{
+			"key": "USER_TOKEN",
+			"value": ""
+		},
+		{
+			"key": "DRIVER_TOKEN",
+			"value": ""
+		},
+		{
+			"key": "RIDE_ID",
+			"value": ""
+		}
+	]
+}
